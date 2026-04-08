@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube For All — AI-Powered Growth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #FF0000;
+    --red2: #CC0000;
+    --dark: #0A0A0A;
+    --surface: #141414;
+    --surface2: #1E1E1E;
+    --border: #2A2A2A;
+    --text: #F1F1F1;
+    --muted: #909090;
+    --gold: #FFD700;
+    --green: #00E676;
+    --blue: #2979FF;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--dark); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; line-height: 1.5; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── AUTH SCREEN ── */
+  #auth-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #1a0000 0%, var(--dark) 60%);
+  }
+  .auth-wrap { width: 420px; max-width: 95vw; }
+  .auth-logo {
+    text-align: center; margin-bottom: 32px;
+  }
+  .auth-logo h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem; letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--red), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .auth-logo p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+  .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; }
+  .auth-tabs { display: flex; background: var(--dark); border-radius: 8px; padding: 4px; margin-bottom: 24px; }
+  .auth-tab { flex: 1; padding: 9px; border: none; background: none; color: var(--muted); border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.9rem; font-weight: 500; transition: all .2s; }
+  .auth-tab.active { background: var(--red); color: #fff; }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 230px; background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+  }
+  .sidebar-logo {
+    padding: 20px 16px 12px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--red), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-section { padding: 12px 8px 4px; }
+  .sidebar-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px; cursor: pointer;
+    font-size: 0.88rem; font-weight: 500; color: var(--muted);
+    transition: all .15s; border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: #FF000015; color: var(--red); border: 1px solid #FF000030; }
+  .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+  .sidebar-bottom { margin-top: auto; padding: 12px 8px; border-top: 1px solid var(--border); }
+  .user-badge { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+  .user-info { flex: 1; min-width: 0; }
+  .user-email { font-size: 0.78rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .plan-pill { font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 99px; text-transform: uppercase; display: inline-block; }
+  .plan-free { background: var(--border); color: var(--muted); }
+  .plan-pro  { background: linear-gradient(90deg, #FFD700, #FFA500); color: #000; }
+
+  /* ── MAIN CONTENT ── */
+  #main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .page { display: none; flex: 1; padding: 32px; max-width: 900px; margin: 0 auto; width: 100%; }
+  .page.active { display: block; }
+
+  .page-header { margin-bottom: 28px; }
+  .page-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 1px; }
+  .page-header p  { color: var(--muted); margin-top: 4px; font-size: 0.9rem; }
+
+  /* ── CARDS ── */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-weight: 700; font-size: 1rem; }
+
+  /* ── FORMS ── */
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  input, textarea, select {
+    width: 100%; padding: 10px 14px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 0.9rem; font-family: inherit;
+    outline: none; transition: border .15s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--red); }
+  textarea { resize: vertical; min-height: 100px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
+    font-family: inherit; font-size: 0.88rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: all .15s; letter-spacing: 0.2px;
+  }
+  .btn-primary { background: var(--red); color: #fff; }
+  .btn-primary:hover { background: var(--red2); transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--red); color: var(--red); }
+  .btn-gold { background: linear-gradient(90deg, #FFD700, #FFA500); color: #000; font-weight: 700; }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 4px 15px #FFD70040; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+  .btn-danger { background: #3a1010; border: 1px solid #8B0000; color: #ff6b6b; }
+  .btn-danger:hover { background: #CC0000; color: #fff; border-color: #CC0000; }
+  .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+  .btn-full { width: 100%; justify-content: center; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
+
+  /* ── ALERTS ── */
+  .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.88rem; }
+  .alert-error   { background: #3a101060; border: 1px solid #8B0000; color: #ff6b6b; }
+  .alert-success { background: #0a2a1060; border: 1px solid #00E676; color: var(--green); }
+  .alert-info    { background: #0a102a60; border: 1px solid var(--blue); color: #82b1ff; }
+
+  /* ── USAGE BAR ── */
+  .usage-bar-wrap { background: var(--dark); border-radius: 99px; height: 6px; margin: 8px 0 4px; overflow: hidden; }
+  .usage-bar { height: 100%; border-radius: 99px; background: var(--red); transition: width .5s; }
+  .usage-bar.safe { background: var(--green); }
+  .usage-bar.warn { background: var(--gold); }
+  .usage-bar.danger { background: var(--red); }
+
+  /* ── RESULT OUTPUT ── */
+  .result-box {
+    background: var(--dark); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px; margin-top: 16px; white-space: pre-wrap; font-size: 0.88rem;
+    line-height: 1.7; max-height: 600px; overflow-y: auto;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .result-box h3, .result-box h4 { color: var(--red); margin: 12px 0 6px; }
+  .result-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+  /* ── PROFILE CARDS ── */
+  .profile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .profile-card {
+    background: var(--surface2); border: 2px solid var(--border); border-radius: 12px;
+    padding: 16px; cursor: pointer; transition: all .2s; position: relative;
+  }
+  .profile-card:hover { border-color: var(--red); transform: translateY(-2px); }
+  .profile-card.selected { border-color: var(--red); background: #FF000010; }
+  .profile-card .pname { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .profile-card .pniche { font-size: 0.8rem; color: var(--muted); }
+  .profile-card .pavatar { font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+  .profile-card .pdel { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; opacity: 0; transition: opacity .2s; }
+  .profile-card:hover .pdel { opacity: 1; }
+  .add-profile-card {
+    background: transparent; border: 2px dashed var(--border); border-radius: 12px;
+    padding: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; color: var(--muted); font-size: 0.88rem; transition: all .2s;
+  }
+  .add-profile-card:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── TOOL TABS ── */
+  .tool-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .tool-tab { padding: 7px 16px; border-radius: 99px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 0.82rem; font-weight: 500; transition: all .15s; }
+  .tool-tab:hover { border-color: var(--red); color: var(--red); }
+  .tool-tab.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+  /* ── COLLAB CARDS ── */
+  .collab-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 12px; }
+  .collab-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+  .collab-info { flex: 1; }
+  .collab-name { font-weight: 600; font-size: 0.9rem; }
+  .collab-detail { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .status-pill { font-size: 0.72rem; font-weight: 700; padding: 2px 9px; border-radius: 99px; text-transform: uppercase; }
+  .status-pending  { background: #2a2a00; color: var(--gold); border: 1px solid #605000; }
+  .status-accepted { background: #002a10; color: var(--green); border: 1px solid #005020; }
+  .status-declined { background: #2a0000; color: #ff6b6b; border: 1px solid #600000; }
+
+  /* ── VIRAL SERIES ── */
+  .series-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+  .series-card .stitle { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .series-card .sconcept { font-size: 0.82rem; color: var(--muted); }
+
+  /* ── MODAL ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 560px; max-width: 100%; max-height: 85vh; overflow-y: auto; }
+  .modal h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; margin-bottom: 20px; letter-spacing: 1px; }
+
+  /* ── LOADING ── */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px; color: var(--muted); }
+
+  /* ── DASHBOARD STATS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 1px; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── FEATURE GRID ── */
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .feature-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; cursor: pointer; transition: all .2s;
+  }
+  .feature-card:hover { border-color: var(--red); transform: translateY(-2px); background: #FF000008; }
+  .feature-card .ficon { font-size: 1.8rem; margin-bottom: 10px; }
+  .feature-card .ftitle { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+  .feature-card .fdesc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+
+  /* ── COMMENT ITEMS ── */
+  .comment-item { display: flex; gap: 8px; margin-bottom: 10px; }
+  .comment-input { flex: 1; }
+  .comment-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0 4px; }
+  .comment-remove:hover { color: var(--red); }
+
+  /* ── UPGRADE BANNER ── */
+  .upgrade-banner {
+    background: linear-gradient(135deg, #1a0a00, #2a1500);
+    border: 1px solid #FFD70040; border-radius: 10px;
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 20px;
+  }
+  .upgrade-banner p { font-size: 0.88rem; }
+  .upgrade-banner strong { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <h1>YouTube For All</h1>
+      <p>AI-powered YouTube growth platform</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Create Account</button>
+      </div>
+      <div id="auth-alert"></div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="auth-email" placeholder="you@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="Min 8 characters" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="handleAuth()" id="auth-btn">
+        <span>Sign In</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">▶ YouTube For All</div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <button class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+        <span class="icon">🏠</span> Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('profiles')" data-page="profiles">
+        <span class="icon">📺</span> My Channel
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Create</div>
+      <button class="nav-item" onclick="showPage('profile-setup')" data-page="profile-setup">
+        <span class="icon">⚡</span> Profile Setup
+      </button>
+      <button class="nav-item" onclick="showPage('long-form')" data-page="long-form">
+        <span class="icon">🎬</span> Long-Form Video
+      </button>
+      <button class="nav-item" onclick="showPage('short-form')" data-page="short-form">
+        <span class="icon">📱</span> Shorts & Reels
+      </button>
+      <button class="nav-item" onclick="showPage('comments')" data-page="comments">
+        <span class="icon">💬</span> Comments
+      </button>
+      <button class="nav-item" onclick="showPage('cross-platform')" data-page="cross-platform">
+        <span class="icon">🌐</span> Cross-Platform
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Grow</div>
+      <button class="nav-item" onclick="showPage('viral-series')" data-page="viral-series">
+        <span class="icon">🚀</span> Viral Series
+      </button>
+      <button class="nav-item" onclick="showPage('collaborations')" data-page="collaborations">
+        <span class="icon">🤝</span> Collaborations
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Account</div>
+      <button class="nav-item" onclick="showPage('history')" data-page="history">
+        <span class="icon">📋</span> History
+      </button>
+      <button class="nav-item" onclick="showPage('settings')" data-page="settings">
+        <span class="icon">⚙️</span> Settings
+      </button>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-badge">
+        <div class="user-avatar" id="sidebar-avatar">?</div>
+        <div class="user-info">
+          <div class="user-email" id="sidebar-email">loading...</div>
+          <span class="plan-pill plan-free" id="sidebar-plan">free</span>
+        </div>
+      </div>
+      <button class="nav-item" onclick="logout()" style="margin-top:4px;">
+        <span class="icon">🚪</span> Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN AREA -->
+  <div id="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <p>Welcome back! Here's your YouTube growth hub.</p>
+      </div>
+      <div id="usage-section"></div>
+      <div class="stats-grid" id="dash-stats"></div>
+      <div class="page-header" style="margin-bottom:16px;">
+        <h2 style="font-size:1.4rem;">Quick Actions</h2>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card" onclick="showPage('profile-setup')">
+          <div class="ficon">⚡</div>
+          <div class="ftitle">Profile Setup</div>
+          <div class="fdesc">Complete YouTube channel setup: bio, keywords, art brief, trailer script</div>
+        </div>
+        <div class="feature-card" onclick="showPage('long-form')">
+          <div class="ficon">🎬</div>
+          <div class="ftitle">Long-Form Video</div>
+          <div class="fdesc">Full script, title, SEO description, thumbnail concept & more</div>
+        </div>
+        <div class="feature-card" onclick="showPage('short-form')">
+          <div class="ficon">📱</div>
+          <div class="ftitle">Shorts & Reels</div>
+          <div class="fdesc">Viral short-form scripts for YouTube Shorts, TikTok & Instagram</div>
+        </div>
+        <div class="feature-card" onclick="showPage('comments')">
+          <div class="ficon">💬</div>
+          <div class="ftitle">Comments Assistant</div>
+          <div class="fdesc">Reply to comments, write strategic comments & grow your community</div>
+        </div>
+        <div class="feature-card" onclick="showPage('viral-series')">
+          <div class="ficon">🚀</div>
+          <div class="ftitle">Viral Series</div>
+          <div class="fdesc">AI suggests series concepts designed to go viral on your channel</div>
+        </div>
+        <div class="feature-card" onclick="showPage('collaborations')">
+          <div class="ficon">🤝</div>
+          <div class="ftitle">Collaborations</div>
+          <div class="fdesc">Invite creators for joint ventures & generate pitch emails</div>
+        </div>
+        <div class="feature-card" onclick="showPage('cross-platform')">
+          <div class="ficon">🌐</div>
+          <div class="ftitle">Cross-Platform</div>
+          <div class="fdesc">Post across Twitter, Instagram, TikTok, Facebook & more</div>
+        </div>
+        <div class="feature-card" onclick="showPage('profiles')">
+          <div class="ficon">📺</div>
+          <div class="ftitle">Channel Profiles</div>
+          <div class="fdesc">Save your channel info to personalize every AI generation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANNEL PROFILES -->
+    <div class="page" id="page-profiles">
+      <div class="page-header">
+        <h2>My Channel Profiles</h2>
+        <p>Save your channel details to personalize every AI output</p>
+      </div>
+      <div id="profiles-list"></div>
+    </div>
+
+    <!-- PROFILE SETUP -->
+    <div class="page" id="page-profile-setup">
+      <div class="page-header">
+        <h2>YouTube Profile Setup</h2>
+        <p>Get everything you need to launch or upgrade your channel</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label>Select Channel Profile</label>
+          <select id="ps-profile"></select>
+        </div>
+        <div id="ps-alert"></div>
+        <button class="btn btn-primary" onclick="generateProfileSetup()" id="ps-btn">
+          <span>✨ Generate Complete Channel Setup</span>
+        </button>
+      </div>
+      <div id="ps-result"></div>
+    </div>
+
+    <!-- LONG-FORM VIDEO -->
+    <div class="page" id="page-long-form">
+      <div class="page-header">
+        <h2>Long-Form Video</h2>
+        <p>Full script, SEO, thumbnail concept, title variations & more</p>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Channel Profile (optional)</label>
+            <select id="lf-profile"></select>
+          </div>
+          <div class="form-group">
+            <label>Target Duration</label>
+            <select id="lf-duration">
+              <option value="5-8 minutes">5-8 minutes</option>
+              <option value="10-15 minutes" selected>10-15 minutes</option>
+              <option value="15-20 minutes">15-20 minutes</option>
+              <option value="20-30 minutes">20-30 minutes</option>
+              <option value="30+ minutes">30+ minutes</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Video Topic / Idea</label>
+          <textarea id="lf-topic" placeholder="e.g. 'Top 10 productivity hacks for remote workers' or 'How I made $10k in my first month on YouTube'" rows="3"></textarea>
+        </div>
+        <div id="lf-alert"></div>
+        <button class="btn btn-primary" onclick="generateLongForm()" id="lf-btn">
+          <span>🎬 Generate Full Video Package</span>
+        </button>
+      </div>
+      <div id="lf-result"></div>
+    </div>
+
+    <!-- SHORT-FORM -->
+    <div class="page" id="page-short-form">
+      <div class="page-header">
+        <h2>Shorts & Reels</h2>
+        <p>Viral short-form scripts for YouTube Shorts, TikTok & Instagram Reels</p>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Channel Profile (optional)</label>
+            <select id="sf-profile"></select>
+          </div>
+          <div class="form-group">
+            <label>How many Shorts?</label>
+            <select id="sf-count">
+              <option value="3">3 Shorts</option>
+              <option value="5" selected>5 Shorts</option>
+              <option value="7">7 Shorts</option>
+              <option value="10">10 Shorts</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Topic / Niche / Trend</label>
+          <textarea id="sf-topic" placeholder="e.g. 'fitness motivation tips' or 'quick cooking hacks'" rows="2"></textarea>
+        </div>
+        <div id="sf-alert"></div>
+        <button class="btn btn-primary" onclick="generateShortForm()" id="sf-btn">
+          <span>📱 Generate Shorts Package</span>
+        </button>
+      </div>
+      <div id="sf-result"></div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="page" id="page-comments">
+      <div class="page-header">
+        <h2>Comments Assistant</h2>
+        <p>Master the comments section — reply, write, and strategize</p>
+      </div>
+      <div class="tool-tabs">
+        <button class="tool-tab active" onclick="switchCommentMode('reply_batch')" id="ctab-reply_batch">Reply to Comments</button>
+        <button class="tool-tab" onclick="switchCommentMode('write_new')" id="ctab-write_new">Write Strategic Comments</button>
+        <button class="tool-tab" onclick="switchCommentMode('strategy')" id="ctab-strategy">Comment Strategy</button>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Channel Profile (optional)</label>
+            <select id="cm-profile"></select>
+          </div>
+          <div class="form-group">
+            <label>Video Topic</label>
+            <input type="text" id="cm-topic" placeholder="e.g. 'my morning routine video'" />
+          </div>
+        </div>
+        <div id="cm-comments-section">
+          <label>Comments to Reply To</label>
+          <div id="cm-comments-list"></div>
+          <button class="btn btn-secondary btn-sm" onclick="addCommentInput()" style="margin-top:8px;">+ Add Comment</button>
+        </div>
+        <div id="cm-alert" style="margin-top:12px;"></div>
+        <button class="btn btn-primary" onclick="generateComments()" id="cm-btn" style="margin-top:12px;">
+          <span>💬 Generate Comment Content</span>
+        </button>
+      </div>
+      <div id="cm-result"></div>
+    </div>
+
+    <!-- CROSS-PLATFORM -->
+    <div class="page" id="page-cross-platform">
+      <div class="page-header">
+        <h2>Cross-Platform Posting</h2>
+        <p>Post your video across every platform with platform-native copy</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label>Channel Profile (optional)</label>
+          <select id="cp-profile"></select>
+        </div>
+        <div class="form-group">
+          <label>YouTube Video Title</label>
+          <input type="text" id="cp-title" placeholder="Your video title here" />
+        </div>
+        <div class="form-group">
+          <label>Short Description / Hook (optional)</label>
+          <textarea id="cp-desc" placeholder="Brief description of what the video is about..." rows="2"></textarea>
+        </div>
+        <div id="cp-alert"></div>
+        <button class="btn btn-primary" onclick="generateCrossPlatform()" id="cp-btn">
+          <span>🌐 Generate All Platform Posts</span>
+        </button>
+      </div>
+      <div id="cp-result"></div>
+    </div>
+
+    <!-- VIRAL SERIES -->
+    <div class="page" id="page-viral-series">
+      <div class="page-header">
+        <h2>Viral Series Generator</h2>
+        <p>AI designs complete series concepts engineered to go viral</p>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Channel Profile (optional)</label>
+            <select id="vs-profile"></select>
+          </div>
+          <div class="form-group">
+            <label>Series Length</label>
+            <select id="vs-length">
+              <option value="5-6 episodes">5-6 episodes</option>
+              <option value="8-10 episodes" selected>8-10 episodes</option>
+              <option value="12-15 episodes">12-15 episodes</option>
+              <option value="20+ episodes">20+ episodes</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Series Goal (optional)</label>
+          <input type="text" id="vs-goal" placeholder="e.g. 'hit 10k subscribers', 'monetize channel', 'build email list'" />
+        </div>
+        <div id="vs-alert"></div>
+        <button class="btn btn-primary" onclick="generateViralSeries()" id="vs-btn">
+          <span>🚀 Generate Viral Series Ideas</span>
+        </button>
+      </div>
+      <div id="vs-result"></div>
+      <div id="vs-saved-series"></div>
+    </div>
+
+    <!-- COLLABORATIONS -->
+    <div class="page" id="page-collaborations">
+      <div class="page-header">
+        <h2>Collaborations</h2>
+        <p>Invite creators for joint ventures and generate winning pitch emails</p>
+      </div>
+      <div class="tool-tabs">
+        <button class="tool-tab active" onclick="switchCollabTab('invite')" id="collabtab-invite">Invite a Creator</button>
+        <button class="tool-tab" onclick="switchCollabTab('pitch')" id="collabtab-pitch">Generate Pitch</button>
+        <button class="tool-tab" onclick="switchCollabTab('list')" id="collabtab-list">My Collaborations</button>
+      </div>
+      <div id="collab-invite-panel">
+        <div class="card">
+          <div class="form-group">
+            <label>Creator's Email Address</label>
+            <input type="email" id="collab-email" placeholder="creator@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Channel Profile to Share (optional)</label>
+            <select id="collab-profile"></select>
+          </div>
+          <div class="form-group">
+            <label>Personal Message (optional)</label>
+            <textarea id="collab-message" placeholder="Introduce yourself and your collab idea..." rows="3"></textarea>
+          </div>
+          <div id="collab-alert"></div>
+          <button class="btn btn-primary" onclick="sendCollabInvite()" id="collab-btn">
+            <span>🤝 Send Collaboration Invite</span>
+          </button>
+        </div>
+      </div>
+      <div id="collab-pitch-panel" style="display:none;">
+        <div class="card">
+          <div class="form-group">
+            <label>My Channel Profile (optional)</label>
+            <select id="pitch-profile"></select>
+          </div>
+          <div class="form-group">
+            <label>Target Creator Name / Channel</label>
+            <input type="text" id="pitch-target" placeholder="e.g. 'MrBeast', 'TechChannel101'" />
+          </div>
+          <div class="form-group">
+            <label>Collab Idea</label>
+            <textarea id="pitch-idea" placeholder="What kind of collab do you have in mind?" rows="3"></textarea>
+          </div>
+          <div id="pitch-alert"></div>
+          <button class="btn btn-primary" onclick="generateCollabPitch()" id="pitch-btn">
+            <span>✉️ Generate Pitch Email</span>
+          </button>
+        </div>
+        <div id="pitch-result"></div>
+      </div>
+      <div id="collab-list-panel" style="display:none;">
+        <div id="collab-list-content"></div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <h2>Generation History</h2>
+        <p>All your past AI generations</p>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+        <button class="tool-tab active" onclick="loadHistory(null)" id="htab-all">All</button>
+        <button class="tool-tab" onclick="loadHistory('profile_setup')" id="htab-profile_setup">Profile Setup</button>
+        <button class="tool-tab" onclick="loadHistory('long_form')" id="htab-long_form">Long-Form</button>
+        <button class="tool-tab" onclick="loadHistory('short_form')" id="htab-short_form">Shorts</button>
+        <button class="tool-tab" onclick="loadHistory('comments')" id="htab-comments">Comments</button>
+        <button class="tool-tab" onclick="loadHistory('viral_series')" id="htab-viral_series">Viral Series</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <h2>Settings</h2>
+        <p>Manage your account and API key</p>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🔑 Anthropic API Key</span></div>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">Add your own key for unlimited generations. Get one at <a href="https://console.anthropic.com" target="_blank" style="color:var(--red);">console.anthropic.com</a></p>
+        <div id="key-status-section"></div>
+        <div class="form-group">
+          <label>New API Key</label>
+          <input type="password" id="settings-key" placeholder="sk-ant-..." />
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-primary" onclick="saveApiKey()">💾 Save Key</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteApiKey()">🗑 Remove Key</button>
+        </div>
+        <div id="settings-alert" style="margin-top:12px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">⭐ Upgrade to Pro</span></div>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">
+          Free: 15 generations/mo, 1 channel profile<br>
+          <strong style="color:var(--gold);">Pro: 500 generations/mo, 10 channel profiles</strong>
+        </p>
+        <div id="upgrade-section"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title" style="color:#ff6b6b;">⚠️ Danger Zone</span></div>
+        <button class="btn btn-danger btn-sm" onclick="showDeleteAccount()">Delete My Account</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="profile-modal" style="display:none;" onclick="closeProfileModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="profile-modal-title">Add Channel Profile</h3>
+    <div id="profile-modal-alert"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Channel Name *</label>
+        <input type="text" id="pm-name" placeholder="My Awesome Channel" />
+      </div>
+      <div class="form-group">
+        <label>Niche</label>
+        <input type="text" id="pm-niche" placeholder="e.g. Fitness, Finance, Gaming" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Target Audience</label>
+      <input type="text" id="pm-audience" placeholder="e.g. 25-35 year old professionals" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Avatar Style</label>
+        <select id="pm-avatar">
+          <option value="avatar_heavy">Avatar Heavy (animated/no face)</option>
+          <option value="face_forward">Face Forward (on camera)</option>
+          <option value="mixed">Mixed Approach</option>
+          <option value="voice_only">Voice Only / Screen Record</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Channel Tone</label>
+        <select id="pm-tone">
+          <option value="friendly">Friendly & Casual</option>
+          <option value="professional">Professional & Authoritative</option>
+          <option value="energetic">High Energy & Hype</option>
+          <option value="educational">Educational & Clear</option>
+          <option value="humorous">Humorous & Entertaining</option>
+          <option value="motivational">Motivational & Inspirational</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Posting Frequency</label>
+      <select id="pm-freq">
+        <option value="daily">Daily</option>
+        <option value="3x per week">3x per week</option>
+        <option value="weekly" selected>Weekly</option>
+        <option value="bi-weekly">Bi-weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Extra Context (optional)</label>
+      <textarea id="pm-context" placeholder="Any special info about your brand, personality, goals..." rows="2"></textarea>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:4px;">
+      <button class="btn btn-ghost" onclick="closeProfileModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfile()" id="pm-save-btn">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="delete-modal" style="display:none;">
+  <div class="modal">
+    <h3>⚠️ Delete Account</h3>
+    <p style="color:var(--muted); margin-bottom:16px; font-size:0.88rem;">This permanently deletes your account and all data. This cannot be undone.</p>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="del-password" placeholder="Enter your password" />
+    </div>
+    <div id="del-alert"></div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:4px;">
+      <button class="btn btn-ghost" onclick="document.getElementById('delete-modal').style.display='none'">Cancel</button>
+      <button class="btn btn-danger" onclick="deleteAccount()">Delete Everything</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let TOKEN = localStorage.getItem("ytfa_token") || null;
+let USER  = JSON.parse(localStorage.getItem("ytfa_user") || "null");
+let PROFILES = [];
+let commentMode = "reply_batch";
+let collabTab   = "invite";
+let editingProfileId = null;
+
+// ── API ───────────────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (TOKEN) opts.headers["Authorization"] = `Bearer ${TOKEN}`;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+let authMode = "login";
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll(".auth-tab").forEach((t,i) => t.classList.toggle("active", i === (mode==="login"?0:1)));
+  document.getElementById("auth-btn").querySelector("span").textContent = mode === "login" ? "Sign In" : "Create Account";
+  document.getElementById("auth-alert").innerHTML = "";
+}
+
+async function handleAuth() {
+  const email    = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  const alertEl  = document.getElementById("auth-alert");
+  const btn      = document.getElementById("auth-btn");
+  if (!email || !password) { alertEl.innerHTML = `<div class="alert alert-error">Email and password required</div>`; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span>`;
+  try {
+    const data = await api("POST", authMode === "login" ? "/auth/login" : "/auth/register", { email, password });
+    TOKEN = data.token; USER = data.user;
+    localStorage.setItem("ytfa_token", TOKEN);
+    localStorage.setItem("ytfa_user", JSON.stringify(USER));
+    initApp();
+  } catch(e) {
+    alertEl.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+    btn.disabled = false; btn.innerHTML = `<span>${authMode==="login"?"Sign In":"Create Account"}</span>`;
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("auth-screen").style.display !== "none") handleAuth();
+});
+
+function logout() {
+  TOKEN = null; USER = null;
+  localStorage.removeItem("ytfa_token");
+  localStorage.removeItem("ytfa_user");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("auth-screen").style.display = "flex";
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function initApp() {
+  document.getElementById("auth-screen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+
+  // Sidebar
+  document.getElementById("sidebar-email").textContent = USER.email;
+  document.getElementById("sidebar-avatar").textContent = USER.email[0].toUpperCase();
+  const planEl = document.getElementById("sidebar-plan");
+  planEl.textContent = USER.plan; planEl.className = `plan-pill plan-${USER.plan}`;
+
+  await loadProfiles();
+  await loadDashboard();
+  addCommentInput();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById(`page-${name}`)?.classList.add("active");
+  document.querySelector(`[data-page="${name}"]`)?.classList.add("active");
+
+  if (name === "profiles")      renderProfilesPage();
+  if (name === "profile-setup") populateProfileSelects();
+  if (name === "long-form")     populateProfileSelects();
+  if (name === "short-form")    populateProfileSelects();
+  if (name === "comments")      populateProfileSelects();
+  if (name === "cross-platform") populateProfileSelects();
+  if (name === "viral-series")  { populateProfileSelects(); loadSavedSeries(); }
+  if (name === "collaborations") { populateProfileSelects(); }
+  if (name === "history")       loadHistory(null);
+  if (name === "settings")      loadSettings();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const usage = await api("GET", "/usage");
+    const pct   = Math.round((usage.used / usage.limit) * 100);
+    const cls   = pct < 50 ? "safe" : pct < 80 ? "warn" : "danger";
+
+    document.getElementById("usage-section").innerHTML = `
+      <div class="card" style="margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:600;">Monthly Generations</span>
+          <span style="font-size:0.85rem; color:var(--muted);">${usage.used} / ${usage.limit}</span>
+        </div>
+        <div class="usage-bar-wrap"><div class="usage-bar ${cls}" style="width:${Math.min(pct,100)}%"></div></div>
+        <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">${usage.plan} plan · ${usage.limit - usage.used} remaining this month</div>
+      </div>`;
+
+    document.getElementById("dash-stats").innerHTML = `
+      <div class="stat-card"><div class="stat-value">${usage.used}</div><div class="stat-label">Generations this month</div></div>
+      <div class="stat-card"><div class="stat-value">${PROFILES.length}</div><div class="stat-label">Channel profiles</div></div>
+      <div class="stat-card"><div class="stat-value">${usage.limit - usage.used}</div><div class="stat-label">Remaining</div></div>
+      <div class="stat-card"><div class="stat-value" style="font-size:1.2rem; text-transform:uppercase;">${usage.plan}</div><div class="stat-label">Current plan</div></div>`;
+  } catch(e) { console.error(e); }
+}
+
+// ── PROFILES ──────────────────────────────────────────────────────────────────
+async function loadProfiles() {
+  try { PROFILES = await api("GET", "/profiles"); }
+  catch(e) { PROFILES = []; }
+}
+
+function renderProfilesPage() {
+  const container = document.getElementById("profiles-list");
+  let html = `<div class="profile-grid">`;
+  PROFILES.forEach(p => {
+    html += `<div class="profile-card ${p.id===getSelectedProfile()?.id?'selected':''}" onclick="selectProfile(${p.id})">
+      <button class="pdel" onclick="event.stopPropagation(); deleteProfile(${p.id})">✕</button>
+      <div class="pname">📺 ${p.channel_name}</div>
+      <div class="pniche">${p.niche || 'No niche set'}</div>
+      <div class="pavatar">👥 ${p.target_audience || 'Audience not set'}</div>
+      <div class="pavatar" style="margin-top:4px;">🎭 ${p.avatar_style?.replace('_',' ')} · ${p.tone}</div>
+    </div>`;
+  });
+  html += `<div class="add-profile-card" onclick="openProfileModal()">➕ Add Channel Profile</div></div>`;
+
+  if (PROFILES.length === 0) {
+    html += `<div class="alert alert-info">No channel profiles yet. Add one to personalize all your AI generations!</div>`;
+  }
+  container.innerHTML = html;
+}
+
+function getSelectedProfile() { return PROFILES[0] || null; }
+
+function selectProfile(id) {
+  const p = PROFILES.find(x => x.id === id);
+  if (!p) return;
+  renderProfilesPage();
+}
+
+function openProfileModal(id = null) {
+  editingProfileId = id;
+  const p = id ? PROFILES.find(x => x.id === id) : null;
+  document.getElementById("profile-modal-title").textContent = id ? "Edit Channel Profile" : "Add Channel Profile";
+  document.getElementById("pm-name").value    = p?.channel_name || "";
+  document.getElementById("pm-niche").value   = p?.niche || "";
+  document.getElementById("pm-audience").value = p?.target_audience || "";
+  document.getElementById("pm-avatar").value  = p?.avatar_style || "avatar_heavy";
+  document.getElementById("pm-tone").value    = p?.tone || "friendly";
+  document.getElementById("pm-freq").value    = p?.posting_freq || "weekly";
+  document.getElementById("pm-context").value = p?.extra_context || "";
+  document.getElementById("profile-modal-alert").innerHTML = "";
+  document.getElementById("profile-modal").style.display = "flex";
+}
+
+function closeProfileModal(e) {
+  if (!e || e.target === document.getElementById("profile-modal"))
+    document.getElementById("profile-modal").style.display = "none";
+}
+
+async function saveProfile() {
+  const data = {
+    channel_name:    document.getElementById("pm-name").value.trim(),
+    niche:           document.getElementById("pm-niche").value.trim(),
+    target_audience: document.getElementById("pm-audience").value.trim(),
+    avatar_style:    document.getElementById("pm-avatar").value,
+    tone:            document.getElementById("pm-tone").value,
+    posting_freq:    document.getElementById("pm-freq").value,
+    extra_context:   document.getElementById("pm-context").value.trim(),
+  };
+  if (!data.channel_name) { document.getElementById("profile-modal-alert").innerHTML = `<div class="alert alert-error">Channel name required</div>`; return; }
+
+  const btn = document.getElementById("pm-save-btn");
+  btn.disabled = true; btn.innerHTML = `<span class="spinner"></span>`;
+  try {
+    if (editingProfileId) {
+      await api("PUT", `/profiles/${editingProfileId}`, data);
+    } else {
+      await api("POST", "/profiles", data);
+    }
+    await loadProfiles();
+    populateProfileSelects();
+    renderProfilesPage();
+    document.getElementById("profile-modal").style.display = "none";
+  } catch(e) {
+    document.getElementById("profile-modal-alert").innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  }
+  btn.disabled = false; btn.innerHTML = "Save Profile";
+}
+
+async function deleteProfile(id) {
+  if (!confirm("Delete this channel profile?")) return;
+  try { await api("DELETE", `/profiles/${id}`); await loadProfiles(); renderProfilesPage(); }
+  catch(e) { alert(e.message); }
+}
+
+function populateProfileSelects() {
+  const selects = ["ps-profile","lf-profile","sf-profile","cm-profile","cp-profile","vs-profile","collab-profile","pitch-profile"];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = `<option value="">— No profile selected —</option>` +
+      PROFILES.map(p => `<option value="${p.id}">${p.channel_name}</option>`).join("");
+  });
+}
+
+// ── GENERATE: PROFILE SETUP ───────────────────────────────────────────────────
+async function generateProfileSetup() {
+  const profileId = document.getElementById("ps-profile").value;
+  if (!profileId) { document.getElementById("ps-alert").innerHTML = `<div class="alert alert-error">Please select a channel profile first. <a href="#" onclick="showPage('profiles'); return false;" style="color:var(--red);">Create one here</a></div>`; return; }
+  await generate("/generate/profile-setup", { profileId }, "ps-btn", "ps-alert", "ps-result");
+}
+
+// ── GENERATE: LONG-FORM ───────────────────────────────────────────────────────
+async function generateLongForm() {
+  const topic = document.getElementById("lf-topic").value.trim();
+  if (!topic) { document.getElementById("lf-alert").innerHTML = `<div class="alert alert-error">Please enter a video topic</div>`; return; }
+  await generate("/generate/long-form", {
+    profileId: document.getElementById("lf-profile").value || null,
+    topic,
+    duration: document.getElementById("lf-duration").value,
+  }, "lf-btn", "lf-alert", "lf-result");
+}
+
+// ── GENERATE: SHORT-FORM ──────────────────────────────────────────────────────
+async function generateShortForm() {
+  const topic = document.getElementById("sf-topic").value.trim();
+  if (!topic) { document.getElementById("sf-alert").innerHTML = `<div class="alert alert-error">Please enter a topic</div>`; return; }
+  await generate("/generate/short-form", {
+    profileId: document.getElementById("sf-profile").value || null,
+    topic,
+    count: parseInt(document.getElementById("sf-count").value),
+  }, "sf-btn", "sf-alert", "sf-result");
+}
+
+// ── GENERATE: COMMENTS ────────────────────────────────────────────────────────
+function switchCommentMode(mode) {
+  commentMode = mode;
+  document.querySelectorAll('[id^="ctab-"]').forEach(t => t.classList.remove("active"));
+  document.getElementById(`ctab-${mode}`)?.classList.add("active");
+  document.getElementById("cm-comments-section").style.display = mode === "reply_batch" ? "block" : "none";
+}
+
+function addCommentInput() {
+  const list = document.getElementById("cm-comments-list");
+  const div  = document.createElement("div");
+  div.className = "comment-item";
+  div.innerHTML = `<input type="text" class="comment-input" placeholder="Paste a comment here..." />
+    <button class="comment-remove" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(div);
+}
+
+async function generateComments() {
+  const comments = commentMode === "reply_batch"
+    ? Array.from(document.querySelectorAll(".comment-input")).map(i => i.value.trim()).filter(Boolean)
+    : [];
+  await generate("/generate/comments", {
+    profileId:  document.getElementById("cm-profile").value || null,
+    mode:       commentMode,
+    comments,
+    videoTopic: document.getElementById("cm-topic").value.trim(),
+  }, "cm-btn", "cm-alert", "cm-result");
+}
+
+// ── GENERATE: CROSS-PLATFORM ──────────────────────────────────────────────────
+async function generateCrossPlatform() {
+  const videoTitle = document.getElementById("cp-title").value.trim();
+  if (!videoTitle) { document.getElementById("cp-alert").innerHTML = `<div class="alert alert-error">Please enter a video title</div>`; return; }
+  await generate("/generate/cross-platform", {
+    profileId:        document.getElementById("cp-profile").value || null,
+    videoTitle,
+    videoDescription: document.getElementById("cp-desc").value.trim(),
+  }, "cp-btn", "cp-alert", "cp-result");
+}
+
+// ── GENERATE: VIRAL SERIES ────────────────────────────────────────────────────
+async function generateViralSeries() {
+  await generate("/viral-series/generate", {
+    profileId:    document.getElementById("vs-profile").value || null,
+    seriesLength: document.getElementById("vs-length").value,
+    goal:         document.getElementById("vs-goal").value.trim(),
+  }, "vs-btn", "vs-alert", "vs-result");
+  await loadSavedSeries();
+}
+
+async function loadSavedSeries() {
+  try {
+    const series = await api("GET", "/viral-series");
+    const el = document.getElementById("vs-saved-series");
+    if (!series.length) { el.innerHTML = ""; return; }
+    el.innerHTML = `<h3 style="font-family:'Bebas Neue'; letter-spacing:1px; margin:20px 0 12px; font-size:1.3rem;">Saved Series</h3>` +
+      series.map(s => `<div class="series-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div><div class="stitle">🎬 Series #${s.id}</div><div class="sconcept">${s.concept || 'No concept saved'}</div></div>
+          <button class="btn btn-danger btn-sm" onclick="deleteSeries(${s.id})">Delete</button>
+        </div>
+      </div>`).join("");
+  } catch(e) {}
+}
+
+async function deleteSeries(id) {
+  try { await api("DELETE", `/viral-series/${id}`); await loadSavedSeries(); }
+  catch(e) { alert(e.message); }
+}
+
+// ── COLLABORATIONS ────────────────────────────────────────────────────────────
+function switchCollabTab(tab) {
+  collabTab = tab;
+  document.querySelectorAll('[id^="collabtab-"]').forEach(t => t.classList.remove("active"));
+  document.getElementById(`collabtab-${tab}`)?.classList.add("active");
+  document.getElementById("collab-invite-panel").style.display = tab==="invite"?"block":"none";
+  document.getElementById("collab-pitch-panel").style.display  = tab==="pitch"?"block":"none";
+  document.getElementById("collab-list-panel").style.display   = tab==="list"?"block":"none";
+  if (tab === "list") loadCollabList();
+}
+
+async function sendCollabInvite() {
+  const email = document.getElementById("collab-email").value.trim();
+  if (!email) { document.getElementById("collab-alert").innerHTML = `<div class="alert alert-error">Email required</div>`; return; }
+  const btn = document.getElementById("collab-btn");
+  btn.disabled = true; btn.innerHTML = `<span class="spinner"></span>`;
+  try {
+    const data = await api("POST", "/collaborations/invite", {
+      inviteeEmail: email,
+      profileId:    document.getElementById("collab-profile").value || null,
+      message:      document.getElementById("collab-message").value.trim(),
+    });
+    document.getElementById("collab-alert").innerHTML = `<div class="alert alert-success">✅ Invite sent! ${data.inviteeIsUser ? "They're already on the platform." : "They'll see it when they join."}</div>`;
+    document.getElementById("collab-email").value = "";
+    document.getElementById("collab-message").value = "";
+  } catch(e) {
+    document.getElementById("collab-alert").innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+  }
+  btn.disabled = false; btn.innerHTML = `<span>🤝 Send Collaboration Invite</span>`;
+}
+
+async function generateCollabPitch() {
+  await generate("/collaborations/generate-pitch", {
+    profileId:     document.getElementById("pitch-profile").value || null,
+    targetCreator: document.getElementById("pitch-target").value.trim(),
+    collabIdea:    document.getElementById("pitch-idea").value.trim(),
+  }, "pitch-btn", "pitch-alert", "pitch-result");
+}
+
+async function loadCollabList() {
+  const el = document.getElementById("collab-list-content");
+  el.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+  try {
+    const { sent, received } = await api("GET", "/collaborations");
+    let html = "";
+
+    if (sent.length) {
+      html += `<h3 style="font-family:'Bebas Neue'; letter-spacing:1px; margin:8px 0 12px; font-size:1.2rem;">Sent Invites</h3>`;
+      html += sent.map(c => `<div class="collab-card">
+        <div class="collab-avatar">${c.invitee_email_confirmed ? c.invitee_email_confirmed[0].toUpperCase() : "?"}</div>
+        <div class="collab-info">
+          <div class="collab-name">${c.invitee_email}</div>
+          <div class="collab-detail">${c.profile_name ? `📺 ${c.profile_name}` : 'No profile linked'}</div>
+          ${c.message ? `<div class="collab-detail" style="margin-top:4px;">"${c.message}"</div>` : ""}
+        </div>
+        <span class="status-pill status-${c.status}">${c.status}</span>
+      </div>`).join("");
+    }
+
+    if (received.length) {
+      html += `<h3 style="font-family:'Bebas Neue'; letter-spacing:1px; margin:16px 0 12px; font-size:1.2rem;">Received Invites</h3>`;
+      html += received.map(c => `<div class="collab-card">
+        <div class="collab-avatar">${c.inviter_email[0].toUpperCase()}</div>
+        <div class="collab-info">
+          <div class="collab-name">${c.inviter_email}</div>
+          <div class="collab-detail">${c.profile_name ? `📺 ${c.profile_name}` : ''}</div>
+          ${c.message ? `<div class="collab-detail" style="margin-top:4px;">"${c.message}"</div>` : ""}
+          ${c.status==="pending" ? `<div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="btn btn-primary btn-sm" onclick="respondCollab(${c.id},'accepted')">✅ Accept</button>
+            <button class="btn btn-danger btn-sm" onclick="respondCollab(${c.id},'declined')">✕ Decline</button>
+          </div>` : ""}
+        </div>
+        <span class="status-pill status-${c.status}">${c.status}</span>
+      </div>`).join("");
+    }
+
+    if (!sent.length && !received.length) html = `<div class="alert alert-info">No collaborations yet. Invite a creator to get started!</div>`;
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML = `<div class="alert alert-error">${e.message}</div>`; }
+}
+
+async function respondCollab(id, status) {
+  try { await api("PATCH", `/collaborations/${id}/status`, { status }); loadCollabList(); }
+  catch(e) { alert(e.message); }
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────────
+async function loadHistory(type) {
+  document.querySelectorAll('[id^="htab-"]').forEach(t => t.classList.remove("active"));
+  document.getElementById(`htab-${type||"all"}`)?.classList.add("active");
+
+  const el = document.getElementById("history-list");
+  el.innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`;
+  try {
+    const url    = type ? `/history?type=${type}` : "/history";
+    const items  = await api("GET", url);
+    if (!items.length) { el.innerHTML = `<div class="alert alert-info">No history yet. Start generating!</div>`; return; }
+
+    const typeLabels = { profile_setup:"⚡ Profile Setup", long_form:"🎬 Long-Form", short_form:"📱 Shorts", comments:"💬 Comments", cross_platform:"🌐 Cross-Platform", viral_series:"🚀 Viral Series", collab_pitch:"🤝 Collab Pitch", general:"📝 General" };
+
+    el.innerHTML = items.map(item => `
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+          <span style="font-size:0.78rem; color:var(--muted);">${typeLabels[item.type]||item.type}</span>
+          <span style="font-size:0.78rem; color:var(--muted); margin-left:auto;">${new Date(item.created_at).toLocaleDateString()}</span>
+          <button class="btn btn-danger btn-sm" onclick="deleteHistory(${item.id}, this)">✕</button>
+        </div>
+        ${item.prompt ? `<div style="font-size:0.82rem; color:var(--muted); margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.prompt}</div>` : ""}
+        <div style="font-size:0.85rem; line-height:1.6; max-height:120px; overflow:hidden; white-space:pre-wrap;">${(item.result||"").slice(0,400)}${(item.result||"").length>400?"…":""}</div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:10px;" onclick="expandHistory(this, \`${btoa(encodeURIComponent(item.result||""))}\`)">View Full</button>
+      </div>`).join("");
+  } catch(e) { el.innerHTML = `<div class="alert alert-error">${e.message}</div>`; }
+}
+
+async function deleteHistory(id, btn) {
+  try { await api("DELETE", `/history/${id}`); btn.closest(".card").remove(); }
+  catch(e) { alert(e.message); }
+}
+
+function expandHistory(btn, encoded) {
+  const full = decodeURIComponent(atob(encoded));
+  const box  = btn.parentElement.querySelector(".hist-full");
+  if (box) { box.remove(); btn.textContent = "View Full"; return; }
+  const div = document.createElement("div");
+  div.className = "result-box hist-full";
+  div.style.marginTop = "10px";
+  div.textContent = full;
+  btn.insertAdjacentElement("afterend", div);
+  btn.textContent = "Collapse";
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+async function loadSettings() {
+  try {
+    const keyData = await api("GET", "/settings/api-key");
+    document.getElementById("key-status-section").innerHTML = keyData.hasKey
+      ? `<div class="alert alert-success">✅ Custom API key is saved</div>`
+      : `<div class="alert alert-info">ℹ️ Using shared platform key (rate limited on free plan)</div>`;
+
+    const plans = await api("GET", "/stripe/plans").catch(() => null);
+    const upgradeEl = document.getElementById("upgrade-section");
+    if (USER.plan === "pro") {
+      upgradeEl.innerHTML = `<div class="alert alert-success">✅ You're on the Pro plan!</div>`;
+    } else if (plans?.pro?.link) {
+      upgradeEl.innerHTML = `<a href="${plans.pro.link}" target="_blank" class="btn btn-gold">⭐ Upgrade to Pro — ${plans.pro.price}</a>`;
+    } else {
+      upgradeEl.innerHTML = `<p style="font-size:0.85rem; color:var(--muted);">Contact us to upgrade your plan.</p>`;
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function saveApiKey() {
+  const key   = document.getElementById("settings-key").value.trim();
+  const alert = document.getElementById("settings-alert");
+  try { await api("POST", "/settings/api-key", { apiKey: key }); alert.innerHTML = `<div class="alert alert-success">✅ API key saved!</div>`; document.getElementById("settings-key").value = ""; loadSettings(); }
+  catch(e) { alert.innerHTML = `<div class="alert alert-error">${e.message}</div>`; }
+}
+
+async function deleteApiKey() {
+  try { await api("DELETE", "/settings/api-key"); document.getElementById("settings-alert").innerHTML = `<div class="alert alert-success">Key removed</div>`; loadSettings(); }
+  catch(e) { alert(e.message); }
+}
+
+function showDeleteAccount() {
+  document.getElementById("delete-modal").style.display = "flex";
+}
+
+async function deleteAccount() {
+  const password = document.getElementById("del-password").value;
+  try { await api("DELETE", "/account", { password }); logout(); }
+  catch(e) { document.getElementById("del-alert").innerHTML = `<div class="alert alert-error">${e.message}</div>`; }
+}
+
+// ── GENERIC GENERATE ──────────────────────────────────────────────────────────
+async function generate(endpoint, body, btnId, alertId, resultId) {
+  const btn    = document.getElementById(btnId);
+  const alertEl = document.getElementById(alertId);
+  const resultEl = document.getElementById(resultId);
+  if (alertEl) alertEl.innerHTML = "";
+  btn.disabled = true;
+  const origHTML = btn.innerHTML;
+  btn.innerHTML = `<span class="spinner"></span> Generating...`;
+  resultEl.innerHTML = `<div class="loading-overlay"><div class="spinner"></div><div>AI is working on it...</div></div>`;
+  try {
+    const data = await api("POST", endpoint, body);
+    resultEl.innerHTML = renderResult(data.result);
+  } catch(e) {
+    if (alertEl) alertEl.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+    resultEl.innerHTML = "";
+  }
+  btn.disabled = false; btn.innerHTML = origHTML;
+}
+
+function renderResult(text) {
+  if (!text) return "";
+  // Convert markdown-style bold and headers
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, "<strong style='color:var(--text);'>$1</strong>")
+    .replace(/^# (.*?)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.*?)$/gm, "<h4>$1</h4>")
+    .replace(/^### (.*?)$/gm, "<strong style='display:block;margin-top:12px;color:var(--red);'>$1</strong>");
+
+  return `<div class="result-box">${formatted}</div>
+    <div class="result-actions">
+      <button class="btn btn-secondary btn-sm" onclick="copyResult(this)">📋 Copy</button>
+      <button class="btn btn-ghost btn-sm" onclick="this.closest('.result-box')?.parentElement.remove()">✕ Clear</button>
+    </div>`;
+}
+
+function copyResult(btn) {
+  const box = btn.closest("[id$='-result'], [id='pitch-result']")?.querySelector(".result-box");
+  if (!box) return;
+  navigator.clipboard.writeText(box.innerText).then(() => { btn.textContent = "✅ Copied!"; setTimeout(() => btn.textContent = "📋 Copy", 2000); });
+}
+
+// ── STARTUP ───────────────────────────────────────────────────────────────────
+if (TOKEN && USER) {
+  initApp();
+} else {
+  document.getElementById("auth-screen").style.display = "flex";
+}
+</script>
+</body>
+</html>
