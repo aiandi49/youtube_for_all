@@ -54,7 +54,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Deploy to Railway
+## Deploy to Railway (DEV-LAMAR)
 
 1. Push to GitHub (see below)
 2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
