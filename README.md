@@ -2,6 +2,46 @@
 
 AI-powered YouTube growth platform. Upload your channel info, get everything you need — scripts, SEO, comments, viral series, collabs, and cross-platform posts.
 
+---
+
+## 🌿 Branch Structure
+
+This repo has two branches. Always check which one you're on before uploading or editing.
+
+| Branch | Status | What's In It |
+|--------|--------|--------------|
+| `main` | ✅ Stable | Production-ready. The live app. Original dark theme (black / red / gold). |
+| `beta` | 🧪 Beta | Active development. Theme switcher — toggle between Original and 🌊 Caribbean. |
+
+### How to switch branches on GitHub
+Click the **main** dropdown button at the top left of the file list → select `beta` to see beta files, `main` to see production files.
+
+### How to switch branches locally
+```bash
+git checkout main    # stable production
+git checkout beta    # beta / theme switcher
+```
+
+### Merging beta → main (when ready)
+```bash
+git checkout main
+git merge beta
+git push origin main
+```
+
+---
+
+## 🎨 What's New in Beta
+
+### Theme Switcher
+- **Visual Style switcher** added to the sidebar bottom
+- 🔴 **Original** — classic black / red / gold dark theme
+- 🌊 **Caribbean** — deep ocean blue backgrounds with teal accents
+- Theme choice saved to localStorage — persists across sessions
+- Zero breaking changes — all features fully intact on both themes
+
+---
+
 ## Features
 
 - **Profile Setup** — Complete channel bio, keywords, banner brief, trailer script
@@ -13,6 +53,8 @@ AI-powered YouTube growth platform. Upload your channel info, get everything you
 - **Collaborations** — Invite creators for joint ventures, generate pitch emails
 - **Free & Pro plans** via Stripe
 - **BYO Anthropic key** — users can add their own key for unlimited access
+
+---
 
 ## Quick Start
 
@@ -54,13 +96,13 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Deploy to Railway (DEV-LAMAR)
+## Deploy to Railway (Recommended)
 
-1. Push to GitHub (see below)
+1. Push to GitHub
 2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
 3. Add a PostgreSQL database (Railway provides free Postgres)
 4. Set environment variables in Railway's Variables tab
-5. Railway auto-deploys on every push ✅
+5. Railway auto-deploys on every push to `main` ✅
 
 **Railway env vars to set:**
 ```
@@ -77,25 +119,7 @@ After first deploy, run the migration via Railway's shell:
 node migrate.js
 ```
 
----
-
-## Deploy to Vercel
-
-Vercel is for frontend only — this app has a Node.js backend. Use Railway for the full stack.
-
-If you want a split setup:
-- **Backend** → Railway
-- **Frontend** → Update `fetch()` calls in `public/index.html` to point to your Railway URL
-
----
-
-## Stripe Setup (optional)
-
-1. Create products in [Stripe Dashboard](https://dashboard.stripe.com)
-2. Create a "Pro" subscription price
-3. Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID`, `STRIPE_PRO_PAYMENT_LINK` to `.env`
-4. Set up webhook endpoint: `https://YOUR_DOMAIN/stripe/webhook`
-   - Events to listen for: `checkout.session.completed`, `customer.subscription.deleted`
+> ⚠️ Railway deploys from `main`. Keep `beta` as your dev branch and only merge to `main` when features are tested and ready.
 
 ---
 
@@ -106,24 +130,28 @@ youtube_for_all/
 ├── server.js          ← Express API server
 ├── migrate.js         ← Database setup (run once)
 ├── package.json
-├── .env.example       ← Copy to .env and fill in
-├── .gitignore
+├── vercel.json
 ├── README.md
 └── public/
-    └── index.html     ← Full frontend app
+    └── index.html     ← Full frontend (theme switcher lives here)
 ```
 
 ---
 
-## Push to GitHub
+## Push Beta Branch to GitHub
 
 ```bash
-cd youtube_for_all
-git init
+# First time — create the beta branch
+git checkout -b beta
 git add .
-git commit -m "Initial commit — YouTube For All"
-git remote add origin https://github.com/YOUR_USERNAME/youtube_for_all.git
-git push -u origin main
+git commit -m "Theme switcher — Beta 1"
+git push origin beta
+
+# Ongoing updates to beta
+git checkout beta
+git add .
+git commit -m "Your update message"
+git push origin beta
 ```
 
 ---
@@ -137,3 +165,7 @@ git push -u origin main
 | History depth       | 30   | 1,000  |
 | All AI features     | ✅   | ✅     |
 | BYO Anthropic key   | ✅   | ✅     |
+
+---
+
+*Built by Lamar Myers · VTREI LLC · YouTube For All*
