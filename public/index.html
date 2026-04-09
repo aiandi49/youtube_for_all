@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --red: #FF0000;
-    --red2: #CC0000;
+    --red: #00c9b1;
+    --red2: #009e8a;
     --dark: #0A0A0A;
     --surface: #141414;
     --surface2: #1E1E1E;
@@ -33,7 +33,7 @@
   #auth-screen {
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh;
-    background: radial-gradient(ellipse at top, #1a0000 0%, var(--dark) 60%);
+    background: radial-gradient(ellipse at top, #001a18 0%, var(--dark) 60%);
   }
   .auth-wrap { width: 420px; max-width: 95vw; }
   .auth-logo {
@@ -75,7 +75,7 @@
     transition: all .15s; border: none; background: none; width: 100%; text-align: left;
   }
   .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: #FF000015; color: var(--red); border: 1px solid #FF000030; }
+  .nav-item.active { background: #00c9b115; color: var(--red); border: 1px solid #00c9b130; }
   .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
   .sidebar-bottom { margin-top: auto; padding: 12px 8px; border-top: 1px solid var(--border); }
   .user-badge { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
@@ -129,15 +129,15 @@
   .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 4px 15px #FFD70040; }
   .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
   .btn-ghost:hover { color: var(--text); border-color: var(--text); }
-  .btn-danger { background: #3a1010; border: 1px solid #8B0000; color: #ff6b6b; }
-  .btn-danger:hover { background: #CC0000; color: #fff; border-color: #CC0000; }
+  .btn-danger { background: #0a2420; border: 1px solid #006f62; color: #2eebd4; }
+  .btn-danger:hover { background: #009e8a; color: #fff; border-color: #009e8a; }
   .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
   .btn-full { width: 100%; justify-content: center; }
   .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
 
   /* ── ALERTS ── */
   .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.88rem; }
-  .alert-error   { background: #3a101060; border: 1px solid #8B0000; color: #ff6b6b; }
+  .alert-error   { background: #0a242060; border: 1px solid #006f62; color: #2eebd4; }
   .alert-success { background: #0a2a1060; border: 1px solid #00E676; color: var(--green); }
   .alert-info    { background: #0a102a60; border: 1px solid var(--blue); color: #82b1ff; }
 
@@ -165,7 +165,7 @@
     padding: 16px; cursor: pointer; transition: all .2s; position: relative;
   }
   .profile-card:hover { border-color: var(--red); transform: translateY(-2px); }
-  .profile-card.selected { border-color: var(--red); background: #FF000010; }
+  .profile-card.selected { border-color: var(--red); background: #00c9b110; }
   .profile-card .pname { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
   .profile-card .pniche { font-size: 0.8rem; color: var(--muted); }
   .profile-card .pavatar { font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
@@ -193,7 +193,7 @@
   .status-pill { font-size: 0.72rem; font-weight: 700; padding: 2px 9px; border-radius: 99px; text-transform: uppercase; }
   .status-pending  { background: #2a2a00; color: var(--gold); border: 1px solid #605000; }
   .status-accepted { background: #002a10; color: var(--green); border: 1px solid #005020; }
-  .status-declined { background: #2a0000; color: #ff6b6b; border: 1px solid #600000; }
+  .status-declined { background: #002420; color: #2eebd4; border: 1px solid #006f62; }
 
   /* ── VIRAL SERIES ── */
   .series-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
@@ -222,7 +222,7 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
     padding: 20px; cursor: pointer; transition: all .2s;
   }
-  .feature-card:hover { border-color: var(--red); transform: translateY(-2px); background: #FF000008; }
+  .feature-card:hover { border-color: var(--red); transform: translateY(-2px); background: #00c9b108; }
   .feature-card .ficon { font-size: 1.8rem; margin-bottom: 10px; }
   .feature-card .ftitle { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
   .feature-card .fdesc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
@@ -699,7 +699,7 @@
         <div id="upgrade-section"></div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title" style="color:#ff6b6b;">⚠️ Danger Zone</span></div>
+        <div class="card-header"><span class="card-title" style="color:#2eebd4;">⚠️ Danger Zone</span></div>
         <button class="btn btn-danger btn-sm" onclick="showDeleteAccount()">Delete My Account</button>
       </div>
     </div>
